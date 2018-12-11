@@ -1,34 +1,43 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <errno.h>
 
-void attrs()
+void attrs(int procc)
 {
-    printf ("%d\n",getpid());
-    printf ("%d\n",getppid());
-    printf ("%d\n",getsid(getpid()));
-    printf ("%d\n",getpgid(getpid()));
+
+    printf("%d %s %d\n",getpgid(getpid()), "Процесс № ", procc);
+    printf("%d %s %d\n",getsid(getpid()), "Процесс № ", procc);
+    printf("%d %s %d\n",getppid(), "Процесс № ", procc);
+    printf("%d %s %d\n",getpgid(getpid()), "Процесс № ", procc);
+
 
 }
 
 int main() {
-    char *arg[] = { "/usr/bin/ls",  0 };
+    char *arg[] = { "lab3_1", (char *) 0 };
 
-    /* fork и exec в порожденном процессе */
-    if (fork() == 0) {
-        printf("Дочерницй процесс 1:\n");
-        attrs();
+    attrs(0);
+
+    if (fork() == 0)
+    {
+        printf("Дочерний процесс 1:\n");
+        attrs(1);
         return 0;
     }
-    else {
-        if (vfork() == 0) {
-            printf("Дочерний процесс 2:\nЗапускаю exec\n");
-            execv(arg[0], arg);
-            printf("I will never be called!\n");
+    else
+    {
+        if (vfork() == 0)
+        {
+            printf("Дочерний процесс 2:\nЗапускаю exec...\n");
+            if (execv(arg[0], arg) == -1)
+            {
+                printf("ошибка\n");
+                printf("%d\n", errno);
+            }
+            printf("Это никогда не выведется!\n");
             return 0;
         }
-        printf("Execution continues in parent process\n");
     }
-
-
+    printf("конец");
     return 0;
 }
