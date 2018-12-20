@@ -1,27 +1,49 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <errno.h>
+#include <stdlib.h>
 
-void attrs(int procc)
+void attrs(int procc, FILE *file)
 {
+    char *name;
+    switch (procc)
+    {
 
-    printf("%d %s %d\n",getpgid(getpid()), "Процесс № ", procc);
-    printf("%d %s %d\n",getsid(getpid()), "Процесс № ", procc);
-    printf("%d %s %d\n",getppid(), "Процесс № ", procc);
-    printf("%d %s %d\n",getpgid(getpid()), "Процесс № ", procc);
+        case 0:
+            name = "Предок";
+            break;
+        case 1:
+            name = "Потомок1";
+            break;
+        case 2:
+            name = "Потомок2";
+            break;
+        default:
+            printf("ошибка вывода атрибутов");
+            return;
+
+
+    }
+    fprintf(file, "%s %s %d %s %d\n",name, " идентификатор процесса: ", getpid(), "Процесс № ", procc);
+    fprintf(file, "%s %s %d %s %d\n",name, " идентификатор группы процессов: ", getpgid(getpid()), "Процесс № ", procc);
+    fprintf(file, "%s %s %d %s %d\n",name, " идентификатор сеанса процесса: ", getsid(getpid()), "Процесс № ", procc);
+    fprintf(file, "%s %s %d %s %d\n",name, " идентификатор предка: ", getppid(), "Процесс № ", procc);
+
 
 
 }
 
-int main() {
-    char *arg[] = { "lab3_1", (char *) 0 };
+int main(int argc, char * argv[]) {
 
-    attrs(0);
+    char *arg[] = { "lab3_1_1", "file1.txt", argv[3], (char *) 0 };
 
     if (fork() == 0)
     {
         printf("Дочерний процесс 1:\n");
-        attrs(1);
+        sleep(atoi(argv[2]));
+        FILE *f1 = fopen("file1.txt", "a");
+        attrs(1, f1);
+        fclose(f1);
         return 0;
     }
     else
@@ -37,7 +59,11 @@ int main() {
             printf("Это никогда не выведется!\n");
             return 0;
         }
+        sleep(atoi(argv[1]));
+        FILE *f = fopen("file1.txt", "a");
+        attrs(0, f);
+        fclose(f);
     }
-    printf("конец");
+    printf("конец\n");
     return 0;
 }
