@@ -50,7 +50,7 @@ int main(int argc, char * argv[]) {
     {
         if (vfork() == 0)
         {
-            printf("Дочерний процесс 2:\nЗапускаю exec....\n");
+            printf("Дочерний процесс 2:\nЗапускаю exec.....\n");
             if (execv(arg[0], arg) == -1)
             {
                 printf("ошибка\n");
